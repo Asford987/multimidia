@@ -1,17 +1,17 @@
 project(multimidia)
 cmake_minimum_required(VERSION 3.10)
 
-# Add executables for encode and decode
-add_executable(encode encode.cpp)
-add_executable(decode decode.cpp)
+add_library(encoder STATIC encoder.cpp)
+add_library(decoder STATIC decoder.cpp)
+add_library(compressor STATIC compressor.cpp)
 
-# Indicate that these executables expect CLI arguments
-target_compile_definitions(encode PRIVATE EXPECTS_CLI_ARGS)
-target_compile_definitions(decode PRIVATE EXPECTS_CLI_ARGS)
+add_executable(arithmetic_coding main.cpp)
 
-# Custom target to copy the executables to the output directory
+target_link_libraries(arithmetic_coding PRIVATE encoder decoder compressor)
+
+target_compile_definitions(arithmetic_coding PRIVATE EXPECTS_CLI_ARGS)
+
 add_custom_target(output ALL
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:encode> ${CMAKE_BINARY_DIR}/output
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:decode> ${CMAKE_BINARY_DIR}/output
-    DEPENDS encode decode
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:arithmetic_coding> ${CMAKE_BINARY_DIR}/output
+    DEPENDS arithmetic_coding
 )
