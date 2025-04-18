@@ -1,12 +1,16 @@
 #include "encoder.h"
 #include "decoder.h"
 #include <iostream>
+#include <cstring>
 
 int main ( int argc, char **argv)
 {
-	if (argc < 4)
+	if (argc != 4)
 	{
 		std::cout << "Using: name_programm e/d <input_of_file> <output_file>" << std::endl;
+		return -1;
+	} if (strlen(argv[1] != 1){
+		std::cout << "Error: expected first argument to be e or d" << std::endl;
 		return -1;
 	}
 	if (argv[1][0] == 'e')
