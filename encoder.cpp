@@ -40,9 +40,9 @@ void Encoder::encode(char* infile, char* outfile)
 
 void Encoder::encode_symbol(int symbol)
 {
-	int range = high - low;
+	int range = high - low + 1;
 
-	high = low + (range * cum_freq[symbol - 1]) / cum_freq[0];
+	high = low + (range * cum_freq[symbol - 1]) / cum_freq[0] - 1;
 	low  = low + (range * cum_freq[symbol]) / cum_freq[0];
 
 	while (true)
@@ -69,43 +69,46 @@ void Encoder::encode_symbol(int symbol)
 		}
 
 		low *= 2;
-		high *= 2;
+		high = 2 * high + 1;
 	}
 }
 
 void Encoder::end_encoding()
 {
-	opposite_bits++;
-
-	if (low < FIRST_QTR)
-		output_bits(0);
-	else
-		output_bits(1);
-
-	out.put(static_cast<char>(buffer >> bits_in_buf));
+    opposite_bits++;
+    if (low < FIRST_QTR)
+        output_bits(0);
+    else
+        output_bits(1);
+    
+    // Fixed: flush remaining bits properly
+    if (bits_in_buf > 0)
+    {
+        buffer >>= (8 - bits_in_buf);
+        out.put(static_cast<char>(buffer));
+    }
 }
 
 void Encoder::output_bits(int bit)
 {
-	write_bit(bit);
-	while (opposite_bits > 0)
-	{
-		write_bit(!bit);
-		opposite_bits--;
-	}
+    write_bit(bit);
+    while (opposite_bits > 0)
+    {
+        write_bit(!bit);
+        opposite_bits--;
+    }
 }
 
 void Encoder::write_bit(int bit)
 {
-	buffer >>= 1;
-	if (bit)
-		buffer |= 0x80;
-
-	bits_in_buf++;
-
-	if (bits_in_buf == 8)
-	{
-		out.put(static_cast<char>(buffer));
-		bits_in_buf = 0;
-	}
+    buffer <<= 1;  // Fixed: shift left instead of right
+    if (bit)
+        buffer |= 1;  // Fixed: set LSB instead of MSB
+    bits_in_buf++;
+    if (bits_in_buf == 8)
+    {
+        out.put(static_cast<char>(buffer));
+        buffer = 0;  // Fixed: reset buffer
+        bits_in_buf = 0;
+    }
 }
