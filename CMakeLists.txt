@@ -5,13 +5,13 @@ add_library(encoder STATIC encoder.cpp)
 add_library(decoder STATIC decoder.cpp)
 add_library(compressor STATIC compressor.cpp)
 
-add_executable(arithmetic_coding main.cpp)
+add_executable(arith_codec main.cpp)
 
-target_link_libraries(arithmetic_coding PRIVATE encoder decoder compressor)
+target_link_libraries(arith_codec PRIVATE encoder decoder compressor)
 
-target_compile_definitions(arithmetic_coding PRIVATE EXPECTS_CLI_ARGS)
+target_compile_definitions(arith_codec PRIVATE EXPECTS_CLI_ARGS)
 
 add_custom_target(output ALL
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:arithmetic_coding> ${CMAKE_BINARY_DIR}/output
-    DEPENDS arithmetic_coding
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:arith_codec> ${CMAKE_BINARY_DIR}/output
+    DEPENDS arith_codec
 )

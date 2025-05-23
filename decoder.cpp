@@ -49,19 +49,21 @@ void Decoder::decode(char* infile, char* outfile)
 
 int Decoder::decode_symbol()
 {
-	int range = high - low;
-	int cum = (((value - low + 1) * cum_freq[0] - 1) / range);
-
+	int range = high - low + 1;  // Fixed: add 1 to range calculation
+	int cum = ((value - low + 1) * cum_freq[0] - 1) / range;  // Fixed: match encoder
 	int symbol_index = 1;
 	while (cum_freq[symbol_index] > cum)
 		symbol_index++;
-
-	high = low + (range * cum_freq[symbol_index - 1]) / cum_freq[0];
+	
+	high = low + (range * cum_freq[symbol_index - 1]) / cum_freq[0] - 1;  // Fixed
 	low = low + (range * cum_freq[symbol_index]) / cum_freq[0];
-
+	
 	while (true)
 	{
-		if (high < HALF){}
+		if (high < HALF)
+		{
+				// No action needed
+		}
 		else if (low >= HALF)
 		{
 			value -= HALF;
@@ -78,12 +80,10 @@ int Decoder::decode_symbol()
 		{
 			break;
 		}
-
 		low *= 2;
-		high *= 2;
+		high = 2 * high + 1;  // Fixed: ensure high remains inclusive
 		value = 2 * value + get_bit();
 	}
-
 	return symbol_index;
 }
 
@@ -92,19 +92,14 @@ int Decoder::get_bit()
 	if (bits_in_buf == 0)
 	{
 		buffer = in.get();
-
 		if (in.eof() || buffer == EOF)
 		{
 			end_decoding = true;
 			return 0;
 		}
-
 		bits_in_buf = 8;
 	}
-
-	int bit = buffer & 1;
-	buffer >>= 1;
+	int bit = (buffer >> (bits_in_buf - 1)) & 1;  // Fixed: read MSB first
 	--bits_in_buf;
-
 	return bit;
 }

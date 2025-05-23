@@ -9,7 +9,7 @@ int main ( int argc, char **argv)
 	{
 		std::cout << "Using: name_programm e/d <input_of_file> <output_file>" << std::endl;
 		return -1;
-	} if (strlen(argv[1] != 1){
+	} if (strlen(argv[1]) != 1){
 		std::cout << "Error: expected first argument to be e or d" << std::endl;
 		return -1;
 	}
